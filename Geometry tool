@@ -1,0 +1,170 @@
+// projectPract.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include <iostream>
+constexpr int SIZE = 1024;
+//check the data
+bool isValidData(char* str)
+{
+	if (!str) return false;
+	return *str >= '0' && *str <= '9' || *str >= 'A' && *str <= 'Z' || *str >= 'a' && *str <= 'z' || *str == '_';
+}
+void printLine(double a, double b, char* name)
+{
+	if (!name) return;
+	//y = a * x + b;
+	if (isValidData(name)) {
+		if (b >= 0) std::cout << name << ": " << "y = " << a << "x" << " + " << b;
+		else std::cout << name << ": " "y = " << a << "x" << " " << b;
+		std::cout << std::endl;
+	}
+}
+void createLine(double& a, double& b)
+{
+	std::cout << "Enter valid line coordinate data." << std::endl;
+
+	std::cout << "a= "; std::cin >> a;
+	std::cout << "b= "; std::cin >> b;
+	std::cout << "Enter correct line name. Names could be arabic, latin symbols and _" << std::endl;
+	char nameOfLine[SIZE];
+	std::cin >> nameOfLine;
+	printLine(a, b, nameOfLine);
+}
+void printPoint(double x, double y, char* name)
+{
+	if (!name) return;
+	//A(x,y)
+	if (isValidData(name))
+	{
+		std::cout << name << "(" << x << ',' << y << ')';
+		std::cout << std::endl;
+	}
+	
+}
+void createPoint(double& x, double& y)
+{
+	std::cout << "Enter valid point coordinate data." << std::endl;
+	std::cout << "x= "; std::cin >> x;
+	std::cout << "y= "; std::cin >> y;
+	std::cout << "Enter correct point name. Names could be arabic, latin symbols and _" << std::endl;
+	char nameOfPoint[SIZE];
+	std::cin >> nameOfPoint;
+	printPoint(x, y, nameOfPoint);
+}
+//check whether the point lies on the line
+bool liesOnLine(double x, double y, double a, double b)
+{
+	return (y == a * x + b);
+}
+void pointLyingOnLine(double& a, double& b, double& x, double& y)
+{
+	createLine(a,b);
+	createPoint(x,y);
+	std::cout << "Does the point lie on the line?" << std::endl;
+	std::cout << liesOnLine(x, y, a, b) << std::endl;
+}
+//a line is parallel to another one if k1=k2 (the slope coefficients are equal)
+void parallelToLineG(double aG, double bG, double xP, double yP)
+{
+	//we have the Cartesian equation so our k1 is in this case aG (the coefficient before x)
+	//we are looking for such answer "y=k*x+n"
+	int kOfParallelLine = aG;
+	int nOfParallelLine = yP - kOfParallelLine * xP;
+	char nameOfParallelLine[SIZE];
+	std::cout << "Name the line: " << std::endl;
+	std::cin >> nameOfParallelLine;
+	std::cout << "equation of a line that is parallel to g is: ";
+	printLine(kOfParallelLine, nOfParallelLine, nameOfParallelLine);
+}
+void findParalel(double a, double b, double x, double y)
+{
+	std::cout << "Enter an equation of a line: " << std::endl;
+	createLine(a, b);
+	std::cout << "Enter the coordinations of a point P that does NOT lie on g, so we build a parallel line from P: ";
+	std::cout << "Enter valid point coordinate data." << std::endl;
+	createPoint(x, y);
+	//equation of a line that is parallel to g
+	parallelToLineG(a, b, x, y);
+}
+void perpendicularToLineG(double aPerpendicular, double bPerpendicular, double xPerpendicular, double yPerpendicular)
+{
+	//for to lines to be perpendicular k1*k2=-1 (coefficients before x)
+	double kPerpendicular =  1 / aPerpendicular;
+	kPerpendicular *= (-1);
+	double nPerpendicular = yPerpendicular - kPerpendicular * xPerpendicular;
+	char nameOfPointPerpendicular[SIZE];
+	std::cout << "Name of the perpendicular line is: " << std::endl;
+	std::cin >> nameOfPointPerpendicular;
+	std::cout << "The equasion of the perpendicular to g is: ";
+	printLine(kPerpendicular, nPerpendicular, nameOfPointPerpendicular);
+}
+void findPerpendicular(double a, double b, double x, double y)
+{
+	//equation of a line perpendicular to g
+	createLine(a, b);
+	std::cout << "Enter the coordinations of a point P that lies on g, so we build a perpendicular line from P: ";
+	std::cout << "Enter valid point coordinate data." << std::endl;
+	createPoint(x, y);
+	perpendicularToLineG(a, b, x, y);
+}
+void crossingPoint(double aFirst, double bFirst, double aSecond, double bSecond)
+{
+	//if they are not parallel nor perpendicular find crossing point
+	if (aFirst!=aSecond && aFirst*aSecond!=(-1))
+	{
+		double xPoint = (bSecond- bFirst) / (aFirst - aSecond);
+		double yPoint = aFirst * xPoint + bFirst;
+		std::cout << "The crossing point is: " << std::endl;
+		std::cout << "( " << xPoint << " , " << yPoint << " )";
+	}
+	else std::cout << "A crossing point between these lines does NOT exist.";
+}
+int main()
+{
+	unsigned int choice = 0;
+	double x = 0, y = 0, a = 0, b = 0;// putting valid neutral data
+	std::cout << "Choose functions from the above: " << std::endl;
+	std::cout << "1. Create a line and enter its data. " << std::endl;
+	std::cout << "2. Create a point and enter its data. " << std::endl;
+	std::cout << "3. Check whether a point lies on a line. " << std::endl;
+	std::cout << "4. Find a paralel line. " << std::endl;
+	std::cout << "5. Find a perpendicular line. " << std::endl;
+
+	while (choice != 13)
+	{
+		std::cin >> choice;
+		switch (choice)
+		{
+			case 1: createLine(a, b); break;
+			case 2: createPoint(x, y); break;
+			case 3: pointLyingOnLine(a, b, x, y); break;
+			case 4: findParalel(a, b, x, y);break;
+			case 5: findPerpendicular(a, b, x, y);break;
+			case 13:break;
+			default: std::cout << "Invalid.";
+		}
+	}
+	/*
+	//find two lines' intersection if it exists
+	std::cout << "Enter valid data for two lines to check whether they cross." << std::endl;
+	std::cout << "Frist line coordinate data: " << std::endl;
+	double aFirst;
+	double bFirst;
+	std::cout << "a= "; std::cin >> aFirst;
+	std::cout << "b= "; std::cin >> bFirst;
+	std::cout << "Enter correct line name. Names could be arabic, latin symbols and _" << std::endl;
+	char nameOfFirstLine[SIZE];
+	std::cin >> nameOfFirstLine;
+	printLine(aFirst, bFirst, nameOfFirstLine);
+	std::cout << "Seconnd line coordinate data: " << std::endl;
+	double aSecond;
+	double bSecond;
+	std::cout << "a= "; std::cin >> aSecond;
+	std::cout << "b= "; std::cin >> bSecond;
+	std::cout << "Enter correct line name. Names could be arabic, latin symbols and _" << std::endl;
+	char nameOfSecondLine[SIZE];
+	std::cin >> nameOfSecondLine;
+	printLine(aSecond, bSecond, nameOfSecondLine);
+	crossingPoint(aFirst, bFirst, aSecond, bSecond);	
+	*/
+}
