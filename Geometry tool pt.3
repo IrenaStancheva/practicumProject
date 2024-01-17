@@ -1,0 +1,260 @@
+// projectPract.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//
+
+#include <iostream>
+constexpr int SIZE = 1024;
+//check the data
+bool isValidData(char* str)
+{
+	if (!str) return false;
+	return *str >= '0' && *str <= '9' || *str >= 'A' && *str <= 'Z' || *str >= 'a' && *str <= 'z' || *str == '_';
+}
+//print a line
+void printLine(double a, double b, char* name)
+{
+	if (!name) return;
+	//y = a * x + b;
+	if (isValidData(name)) {
+		if (b >= 0) std::cout << name << ": " << "y = " << a << "x" << " + " << b;
+		else std::cout << name << ": " "y = " << a << "x" << " " << b;
+		std::cout << std::endl;
+	}
+}
+//create a line
+void createLine(double& a, double& b)
+{
+	std::cout << "Enter valid line coordinate data." << std::endl;
+	std::cout << "a= "; std::cin >> a;
+	std::cout << "b= "; std::cin >> b;
+	std::cout << "Enter correct line name. Names could be arabic, latin symbols and _" << std::endl;
+	char nameOfLine[SIZE];
+	std::cin >> nameOfLine;
+	printLine(a, b, nameOfLine);
+}
+//print a point
+void printPoint(double x, double y, char* name)
+{
+	if (!name) return;
+	//A(x,y)
+	if (isValidData(name))
+	{
+		std::cout << name << "(" << x << ',' << y << ')';
+		std::cout << std::endl;
+	}
+}
+// create a point
+void createPoint(double& x, double& y)
+{
+	std::cout << "Enter valid point coordinate data." << std::endl;
+	std::cout << "x= "; std::cin >> x;
+	std::cout << "y= "; std::cin >> y;
+	std::cout << "Enter correct point name. Names could be arabic, latin symbols and _" << std::endl;
+	char nameOfPoint[SIZE];
+	std::cin >> nameOfPoint;
+	printPoint(x, y, nameOfPoint);
+}
+//check whether the point lies on the line
+bool liesOnLine(double x, double y, double a, double b)
+{
+	return (y == a * x + b);
+}
+void pointLyingOnLine(double& a, double& b, double& x, double& y)
+{
+	createLine(a,b);
+	createPoint(x,y);
+	std::cout << "Does the point lie on the line?" << std::endl;
+	std::cout << liesOnLine(x, y, a, b) << std::endl;
+}
+//a line is parallel to another one if k1=k2 (the slope coefficients are equal)
+void parallelToLineG(double aG, double bG, double xP, double yP)
+{
+	//we have the Cartesian equation so our k1 is in this case aG (the coefficient before x)
+	//we are looking for such answer "y=k*x+n"
+	int kOfParallelLine = aG;
+	int nOfParallelLine = yP - kOfParallelLine * xP;
+	char nameOfParallelLine[SIZE];
+	std::cout << "Name the line: " << std::endl;
+	std::cin >> nameOfParallelLine;
+	std::cout << "equation of a line that is parallel to g is: ";
+	printLine(kOfParallelLine, nOfParallelLine, nameOfParallelLine);
+}
+void findParalel(double a, double b, double x, double y)
+{
+	std::cout << "Enter an equation of a line: " << std::endl;
+	createLine(a, b);
+	std::cout << "Enter the coordinations of a point P that does NOT lie on g, so we build a parallel line from P: ";
+	std::cout << "Enter valid point coordinate data." << std::endl;
+	createPoint(x, y);
+	//equation of a line that is parallel to g
+	parallelToLineG(a, b, x, y);
+}
+void perpendicularToLineG(double aPerpendicular, double bPerpendicular, double xPerpendicular, double yPerpendicular)
+{
+	//for to lines to be perpendicular k1*k2=-1 (coefficients before x)
+	double kPerpendicular =  1 / aPerpendicular;
+	kPerpendicular *= (-1);
+	double nPerpendicular = yPerpendicular - kPerpendicular * xPerpendicular;
+	char nameOfPointPerpendicular[SIZE];
+	std::cout << "Name of the perpendicular line is: " << std::endl;
+	std::cin >> nameOfPointPerpendicular;
+	std::cout << "The equasion of the perpendicular to g is: ";
+	printLine(kPerpendicular, nPerpendicular, nameOfPointPerpendicular);
+}
+void findPerpendicular(double a, double b, double x, double y)
+{
+	//equation of a line perpendicular to g
+	createLine(a, b);
+	std::cout << "Enter the coordinations of a point P that lies on g, so we build a perpendicular line from P: ";
+	std::cout << "Enter valid point coordinate data." << std::endl;
+	createPoint(x, y);
+	perpendicularToLineG(a, b, x, y);
+}
+void crossingPoint(double& aFirst, double& bFirst, double& aSecond, double& bSecond)
+{
+	//if they are not parallel nor perpendicular find crossing point
+	if (aFirst != aSecond && aFirst * aSecond != (-1))
+	{
+		double xPoint = (bSecond - bFirst) / (aFirst - aSecond);
+		double yPoint = aFirst * xPoint + bFirst;
+		std::cout << "The crossing point is: " << std::endl;
+		std::cout << "( " << xPoint << " , " << yPoint << " )" << std::endl;
+	}
+	else std::cout << "A crossing point between these lines does NOT exist." << std::endl;
+}
+void findCrossingPoint(double aFirst, double bFirst, double aSecond, double bSecond)
+{
+	//find two lines' intersection if it exists
+	std::cout << "Enter valid data for two lines to check whether they cross." << std::endl;
+	std::cout << "Frist line coordinate data: " << std::endl;
+	createLine(aFirst, bFirst);
+	std::cout << "Seconnd line coordinate data: " << std::endl;
+	createLine(aSecond, bSecond);
+	crossingPoint(aFirst, bFirst, aSecond, bSecond);
+}
+void createLineByTwoPoints(double xA, double yA, double xB, double yB, double& lineCoordinateA, double& lineCoordinateB, char* name)
+{
+	if (!name) return;
+	//(yB-yA)*((x-xA)/(xB-xA))=(y-yA)
+	//the line would look like this: y = x*( (yB-yA)/(xB-xA) ) - xA*(yB-yA)/(xB-xA) + yA
+	lineCoordinateA = (yB - yA) / (xB - xA);
+	lineCoordinateB = (-1) * (xA * (yB - yA) / (xB - xA) + yA);
+	std::cout << "Enter correct line name. Names could be arabic, latin symbols and _" << std::endl;
+	std::cin >> name;
+	if (!name) return;
+	//y = a * x + b;
+	if (isValidData(name)) {
+		if (lineCoordinateB >= 0) std::cout << name << ": " << "y = " << lineCoordinateA << "x" << " + " << lineCoordinateB;
+		else std::cout << name << ": " "y = " << lineCoordinateA << "x" << " " << lineCoordinateB;
+		std::cout << std::endl;
+	}
+}
+void triangleHeight(double xA, double yA, double xB, double yB, double xC, double yC)
+{
+	//the line of the height of a triangle is perpendicular to one of the triangle's sides
+	//we use the perpendicular function to find it
+	std::cout << "Input 3 points." << std::endl << "First point: " << std::endl;
+	createPoint(xA, yA);
+	std::cout << "Second point: " << std::endl;
+	createPoint(xB, yB);
+	std::cout << "Third point: " << std::endl;
+	createPoint(xC, yC);
+	double lineCoordinateA = 0;
+	double lineCoordinateB = 0;
+	char name[SIZE];
+	createLineByTwoPoints(xA, yA, xB, yB, lineCoordinateA, lineCoordinateB, name);
+	perpendicularToLineG(lineCoordinateA, lineCoordinateB, xC, yC);
+}
+void findMedian(double xA, double yA, double xB, double yB, double xC, double yC)
+{
+	std::cout << "Input 3 points." << std::endl << "First point: " << std::endl;
+	createPoint(xA, yA);
+	std::cout << "Second point: " << std::endl;
+	createPoint(xB, yB);
+	std::cout << "Third point: " << std::endl;
+	createPoint(xC, yC);
+	double middleOfLineA = (xA + xB) / 2;
+	double middleOfLineB = (yA + yB) / 2;
+	double lineCoordinateA = 0;
+	double lineCoordinateB = 0;
+	char name[SIZE];
+	createLineByTwoPoints(middleOfLineA, middleOfLineB, xC, yC, lineCoordinateA, lineCoordinateB, name);
+}
+void findBisectorsOfTriangle(double xA, double yA, double xB, double yB, double xC, double yC)
+{
+	std::cout << "Input 3 points." << std::endl << "First point: " << std::endl;
+	createPoint(xA, yA);
+	std::cout << "Second point: " << std::endl;
+	createPoint(xB, yB);
+	std::cout << "Third point: " << std::endl;
+	createPoint(xC, yC);
+	double middleOfLineA = (xA + xB) / 2;
+	double middleOfLineB = (yA + yB) / 2;
+	double lineCoordinateA = 0;
+	double lineCoordinateB = 0;
+	char name[SIZE];
+	//to build the bisectors we need to find the side of the triangle, a point that is in its middle and then built a perpendicular to that side from the middle
+	createLineByTwoPoints(xA, yA, xB, yB, lineCoordinateA, lineCoordinateB, name);
+	perpendicularToLineG(lineCoordinateA, lineCoordinateB, middleOfLineA, middleOfLineB);
+}
+void findTangentToPraboll(double a, double b, double c, double x0)
+{
+	std::cout << "Enter the data for the parabol." << std::endl;
+	std::cout << "a = ";std::cin >> a;
+	std::cout << "b = ";std::cin >> b;
+	std::cout << "c = ";std::cin >> c;
+	std::cout << "Enter the data for point on the REAL line (x0)." << std::endl;
+	std::cout << "x0 = ";std::cin >> x0;
+	// (ax2 + bx + c = 0) and a point x0
+	std::cout << "The paraboll is: " << a << "x2 + " << b << "x + " << c << " = 0" << std::endl;
+	// the tangent will look like: y = (2ax0 + b)(x−x0) + y0
+	//where 2*a*x0 is the derivative of the parabol
+	//x0,y0 are the cooridnates of the point we enter as we find y0 if we consider the equasion (y0)2= a*x02 + b*x0 + c
+	double y0 = (a*x0*x0 + b*x0 + c);
+	double dy = 2 * a * x0 + b;
+	double aTanglent = dy;
+	double bTanglent = (-1)*(dy*x0) + y0;
+	std::cout << "The tanglet of the parabol in this point is: " << std::endl;
+	if (bTanglent<0) std::cout << "y = " << aTanglent << "x " << bTanglent << std::endl;
+	else std::cout << "y = " << aTanglent << "x + " << bTanglent << std::endl;
+}
+int main()
+{
+	unsigned int choice = 0;
+	double x = 0, y = 0, a = 0, b = 0;// putting valid neutral data
+	double xA = 0, yA = 0, xB = 0, yB = 0, xC = 0, yC = 0;
+	std::cout << "Please have in mind that all of the equasions we are going to use will be in the following form: y = a*x + b " << std::endl;
+	std::cout << "For a point we are going to use: A(x,y)" << std::endl;
+	std::cout << "Choose functions from the above: " << std::endl;
+	std::cout << "1. Create a line and enter its data. " << std::endl;
+	std::cout << "2. Create a point and enter its data. " << std::endl;
+	std::cout << "3. Check whether a point lies on a line. " << std::endl;
+	std::cout << "4. Find a paralel line. " << std::endl;
+	std::cout << "5. Find a perpendicular line. " << std::endl;
+	std::cout << "6. Find a crossing point between two lines. " << std::endl;
+	std::cout << "7. Find the heigth of a triangle by given 3 points. " << std::endl;
+	std::cout << "8. Find the median of a triangle by given 3 points. " << std::endl;
+	std::cout << "9. Find the perpendicular bisector of a triangle by given 3 points. " << std::endl;
+	//for the parabol we will use a, b, c as coefficients of its equasion
+	double aPrabol = 0, bParabol = 0, cParabol = 0;
+	std::cout << "10. Find the tangent of a parabol by its given x0 point. " << std::endl;
+
+	while (choice != 13)
+	{
+		std::cin >> choice;
+		switch (choice)
+		{
+			case 1: createLine(a, b); break;
+			case 2: createPoint(x, y); break;
+			case 3: pointLyingOnLine(a, b, x, y); break;
+			case 4: findParalel(a, b, x, y);break;
+			case 5: findPerpendicular(a, b, x, y);break;
+			case 6: findCrossingPoint(a, b, x, y); break;
+			case 7: triangleHeight(xA, yA, xB, yB, xC, yC); break;
+			case 8: findMedian(xA, yA, xB, yB, xC, yC); break;
+			case 9: findBisectorsOfTriangle(xA, yA, xB, yB, xC, yC); break;
+			case 10: findTangentToPraboll(aPrabol, bParabol, cParabol, x); break;
+			case 13:break;
+			default: std::cout << "Invalid.";
+		}
+	}
+}
